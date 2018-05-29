@@ -92,6 +92,7 @@ def create_title(body_text, tk_body, tk_title, encoder_model, decoder_model, ori
     word2idx_title = tk_title.word_index
     idx2word_title = {v: k for k, v in word2idx_title.items()}
         
+    print('\n#### {} ####\n'.format(body_text))
     raw_tokenized = tk_body.texts_to_sequences([body_text])
     raw_tokenized = pad_sequences(raw_tokenized, max_len_body)
     body_encoding = encoder_model.predict(raw_tokenized)

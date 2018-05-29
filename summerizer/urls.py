@@ -4,6 +4,7 @@ from summerizer import views
 
 urlpatterns = [
     url(r'^issues/$', views.issue_list),
+    url(r'^generate-title/$', views.generate_title)
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

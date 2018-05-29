@@ -4,7 +4,7 @@ from summerizer.models import Issue
 
 
 class IssueSerializer(serializers.Serializer):
-  body = serializers.CharField()
+  body = serializers.CharField(style={'base_template': 'textarea.html'})
   title = serializers.CharField()
 
   def create(self, validated_data):
