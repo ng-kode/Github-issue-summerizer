@@ -7,21 +7,15 @@ from summerizer.serializers import IssueSerializer
 
 from summerizer.model.Predict import Predictor
 
+# load the model
 p = Predictor()
 
-# Create your views here.
-@api_view(['GET'])
-def issue_list(request, format=None):
-  """
-  List all issues
-  """
-  if request.method == 'GET':
-    issues = Issue.objects.all()
-    serializer = IssueSerializer(issues, many=True)
-    return Response(serializer.data)
-  
-  return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# template views
+def index(request):
+  context = { 'testing': 'testing here' }
+  return render(request, 'summerizer/index.html', context)
 
+# api
 @api_view(['GET'])
 def generate_title(request):
   """

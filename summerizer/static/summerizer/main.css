@@ -1,0 +1,15 @@
+#generate img {
+  display: none;
+}
+
+#generate.loading {
+  padding: 0;
+}
+
+#generate.loading img{
+  display: initial;
+}
+
+#generate.loading span {
+  display: none;
+}
