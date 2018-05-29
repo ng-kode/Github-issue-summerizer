@@ -1,7 +1,10 @@
+import os
 import numpy as np
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 import dill as dpickle
+from keras.layers import Input, merge
+from keras.models import Model
 
 def add_start_end_(string):
     return " 'start' " + string + " 'end' "
@@ -76,7 +79,8 @@ def load_tokenizer(fname):
     Output: tokenizer object
     """
     # Load files from disk
-    with open(fname, 'rb') as f:
+    script_dir = os.path.dirname(__file__)
+    with open(os.path.join(script_dir, fname), 'rb') as f:
         tk = dpickle.load(f)
 
     print('Size of vocabulary for {}: {}'.format(fname, tk.num_words))
@@ -118,3 +122,26 @@ def create_title(body_text, tk_body, tk_title, encoder_model, decoder_model, ori
         print("Original Title:\n {}".format(original_title_text))
     print("\n>>>>> Generated Title (Prediction): <<<<<\n {}".format(' '.join(decoded_sentence)))
     print('\n')
+    return ' '.join(decoded_sentence)
+
+def extract_decoder_model(model):
+    latent_dim = model.get_layer('Title-Word-Embedding').output_shape[-1]
+    
+    decoder_inputs = model.get_layer('Decoder-Input').input
+    dec_emb = model.get_layer('Title-Word-Embedding')(decoder_inputs)
+    dec_bn = model.get_layer('Decoder-BatchNorm-1')(dec_emb)
+    
+    gru_inference_state_input = Input(shape=(latent_dim,), name='hidden_state_input')
+    
+    gru_out, gru_state_out = model.get_layer('Decoder-GRU')([dec_bn, gru_inference_state_input]) 
+#     gru_out_back, gru_state_out_back = model.get_layer('Decoder-Backward-GRU')([dec_bn, gru_inference_state_input]) 
+    
+#     gru_out = merge([gru_out, gru_out_back], mode='concat')
+    
+    dec_bn2 = model.get_layer('Decoder-BatchNorm-2')(gru_out)
+    
+    dense_out = model.get_layer('Final-Output-Dense')(dec_bn2)
+    
+    decoder_model = Model([decoder_inputs, gru_inference_state_input],
+                          [dense_out, gru_state_out])
+    return decoder_model
