@@ -1,4 +1,6 @@
-__pycache__/
+ENV/
+model/.ipynb_checkpoints
+model/archive_models/
+
 *.csv
-.ipynb_checkpoints
-archive_models/
+__pycache__/
