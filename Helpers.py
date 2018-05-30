@@ -118,3 +118,4 @@ def create_title(body_text, tk_body, tk_title, encoder_model, decoder_model, ori
         print("Original Title:\n {}".format(original_title_text))
     print("\n>>>>> Generated Title (Prediction): <<<<<\n {}".format(' '.join(decoded_sentence)))
     print('\n')
+    return ' '.join(decoded_sentence)
