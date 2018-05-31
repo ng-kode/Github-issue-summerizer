@@ -1,4 +1,8 @@
+.env/
 __pycache__/
 *.csv
-.ipynb_checkpoints
-archive_models/
+*.h5
+*.hdf5
+*.dpkl
+*.npy
+.ipynb_checkpoints/

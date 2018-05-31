@@ -1,0 +1,12 @@
+if attention:
+    att_prob = Dense(LATENT_DIM, activation='softmax', name='attention_vec')(state_h)
+    state_h = merge([state_h, att_prob], output_shape=LATENT_DIM, name='attention_mul', mode='mul')
+    del att_prob
+
+if bidirectional:
+    _, state_h_back = GRU(LATENT_DIM, return_state=True, go_backwards=True, name='Encoder-Last-Backward-GRU')(x)
+    if attention:
+        att_prob = Dense(LATENT_DIM, activation='softmax', name='attention_vec_back')(state_h_back)
+        state_h_back = merge([state_h_back, att_prob], output_shape=LATENT_DIM, name='attention_mul_back', mode='mul')
+        del att_prob
+    state_h = merge([state_h, state_h_back], mode='sum')

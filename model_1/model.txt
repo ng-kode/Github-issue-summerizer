@@ -1,0 +1,39 @@
+LATENT_DIM = 512
+BODY_LENGTH = 100
+TITLE_LENGTH = 10
+NUM_ENCODER_TOKENS = 10000
+NUM_DECODER_TOKENS = 1000
+
+#### Encoder ####
+encoder_inputs = Input(shape=(BODY_LENGTH,), name='Encoder-Input')
+
+x = Embedding(NUM_ENCODER_TOKENS, LATENT_DIM, mask_zero=False, name='Body-Word-Embedding')(encoder_inputs)
+x = BatchNormalization(name='Encoder-BatchNorm-1')(x)
+
+_, state_h = GRU(LATENT_DIM, return_state=True, name='Encoder-Last-GRU')(x)
+    
+encoder_model = Model(encoder_inputs, state_h, name='Encoder-Model')
+
+encoder_out = encoder_model(encoder_inputs)
+
+#### Decoder ####
+decoder_inputs = Input(shape=(None,), name='Decoder-Input')
+
+x = Embedding(NUM_DECODER_TOKENS, LATENT_DIM, mask_zero=False, name='Title-Word-Embedding')(decoder_inputs)
+x = BatchNormalization(name='Decoder-BatchNorm-1')(x)
+
+decoder_gru = GRU(LATENT_DIM, return_state=True, return_sequences=True, name='Decoder-GRU')
+
+# decoder_gru_state for extraction later
+decoder_gru_out, decoder_gru_state = decoder_gru(x, initial_state=encoder_out)
+
+x = TimeDistributed(BatchNormalization(), name='Decoder-BatchNorm-2')(decoder_gru_out)
+
+decoder_out = Dense(NUM_DECODER_TOKENS, activation='softmax', name='Final-Output-Dense')(x)
+
+#### Seq2Seq Model ####
+seq2seq_Model = Model([encoder_inputs, decoder_inputs], decoder_out, name='Seq2Seq-Model')
+
+seq2seq_Model.compile(optimizer=optimizers.Nadam(lr=1e-3), loss='sparse_categorical_crossentropy')
+
+seq2seq_Model.summary()
